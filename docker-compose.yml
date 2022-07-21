@@ -1,0 +1,84 @@
+version: '3.5'
+
+volumes:
+   pgdb:
+
+services:
+  redis:
+    image: redis
+    container_name: sentry-redis
+
+  postgres:
+    container_name: sentry-database
+    image: postgres
+    environment:
+      POSTGRES_USER: sentry
+      POSTGRES_PASSWORD: sentry
+      POSTGRES_DB: sentry
+    volumes:
+     - ./pgdb:/var/lib/postgresql/data
+
+  sentry:
+    container_name: sentry
+    image: sentry
+    links:
+     - redis
+     - postgres
+    ports:
+     - 9000:9000
+    environment:
+      SENTRY_SECRET_KEY: 'secret key'
+      SENTRY_POSTGRES_HOST: postgres
+      SENTRY_DB_USER: sentry
+      SENTRY_DB_PASSWORD: sentry
+      SENTRY_REDIS_HOST: redis
+      SENTRY_SERVER_EMAIL: 'from email'
+      SENTRY_EMAIL_HOST: 'smtp server address'
+      SENTRY_EMAIL_PORT: '587'
+      SENTRY_EMAIL_USER: 'email user'
+      SENTRY_EMAIL_PASSWORD: 'email password'
+      SENTRY_EMAIL_USE_TLS: 'true'
+      SENTRY_SINGLE_ORGANIZATION: 0
+
+
+  cron:
+    container_name: sentry-cron
+    image: sentry
+    links:
+     - redis
+     - postgres
+    command: "sentry run cron"
+    environment:
+      SENTRY_SECRET_KEY: 'secret key'
+      SENTRY_POSTGRES_HOST: postgres
+      SENTRY_DB_USER: sentry
+      SENTRY_DB_PASSWORD: sentry
+      SENTRY_REDIS_HOST: redis
+      SENTRY_SERVER_EMAIL: 'from email'
+      SENTRY_EMAIL_HOST: 'smtp server address'
+      SENTRY_EMAIL_PORT: '587'
+      SENTRY_EMAIL_USER: 'email user'
+      SENTRY_EMAIL_PASSWORD: 'email password'
+      SENTRY_EMAIL_USE_TLS: 'true'
+      SENTRY_SINGLE_ORGANIZATION: 0
+
+  worker:
+    container_name: sentry-worker
+    image: sentry
+    links:
+     - redis
+     - postgres
+    command: "sentry run worker"
+    environment:
+      SENTRY_SECRET_KEY: 'secret key'
+      SENTRY_POSTGRES_HOST: postgres
+      SENTRY_DB_USER: sentry
+      SENTRY_DB_PASSWORD: sentry
+      SENTRY_REDIS_HOST: redis
+      SENTRY_SERVER_EMAIL: 'from email'
+      SENTRY_EMAIL_HOST: 'smtp server address'
+      SENTRY_EMAIL_PORT: '587'
+      SENTRY_EMAIL_USER: 'email user'
+      SENTRY_EMAIL_PASSWORD: 'email password'
+      SENTRY_EMAIL_USE_TLS: 'true'
+      SENTRY_SINGLE_ORGANIZATION: 0
