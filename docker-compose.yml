@@ -7,10 +7,12 @@ services:
   redis:
     image: redis
     container_name: sentry-redis
+    restart: always
 
   postgres:
     container_name: sentry-database
     image: postgres
+    restart: always
     environment:
       POSTGRES_USER: sentry
       POSTGRES_PASSWORD: sentry
@@ -21,6 +23,7 @@ services:
   sentry:
     container_name: sentry
     image: sentry
+    restart: always
     links:
      - redis
      - postgres
@@ -44,6 +47,7 @@ services:
   cron:
     container_name: sentry-cron
     image: sentry
+    restart: always
     links:
      - redis
      - postgres
@@ -65,6 +69,7 @@ services:
   worker:
     container_name: sentry-worker
     image: sentry
+    restart: always
     links:
      - redis
      - postgres
